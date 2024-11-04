@@ -14,7 +14,7 @@ export class Todo {
   id!: number;
 
   @Column({ type: "text" })
-  task!: string;
+  title!: string;
 
   @Column({ type: "text" })
   description!: string;

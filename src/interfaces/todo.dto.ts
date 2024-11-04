@@ -1,5 +1,6 @@
 export interface TodoDTO {
-  task: string;
+  title: string;
   description: string;
+  completed: boolean;
   userId: number;
 }

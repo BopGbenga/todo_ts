@@ -2,8 +2,6 @@ import { Request, Response, RequestHandler } from "express";
 import Todo from "../entities/todo";
 import { TodoDTO } from "../interfaces/todo.dto";
 import { AppDataSource } from "../ormConfig";
-import { promises } from "dns";
-import { json } from "body-parser";
 
 interface AuthRequest extends Request {
   user?: any;
@@ -14,7 +12,7 @@ export const createTask: RequestHandler = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { task, description } = req.body as TodoDTO;
+    const { title, description } = req.body as TodoDTO;
     const todoRepository = AppDataSource.getRepository(Todo);
     const userId = req.user?.id as number;
     if (!userId) {
@@ -22,7 +20,7 @@ export const createTask: RequestHandler = async (
       return;
     }
     const newTodo = todoRepository.create({
-      task,
+      title,
       description,
       user: { id: userId },
     });
@@ -37,7 +35,7 @@ export const createTask: RequestHandler = async (
     return;
   }
 };
-//Get all todo
+//Get all task
 export const getAllTask: RequestHandler = async (
   req: AuthRequest,
   res: Response
@@ -60,7 +58,7 @@ export const getAllTask: RequestHandler = async (
   }
 };
 
-//Get a todo
+//Get a task
 export const getTask: RequestHandler = async (
   req: AuthRequest,
   res: Response
@@ -85,6 +83,70 @@ export const getTask: RequestHandler = async (
     }
   } catch (error) {
     console.error("error retrieving tasks", error);
+    res.status(500).json({ message: "internal server error" });
+  }
+};
+
+//update a task
+export const updateTodo: RequestHandler = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+
+    const taskId = Number(req.params.id);
+
+    const todoRepository = AppDataSource.getRepository(Todo);
+    const task = await todoRepository.findOne({
+      where: { user: { id: userId }, id: taskId },
+    });
+    if (!task) {
+      res.status(404).json({ message: "Task not found or not authorized" });
+      return;
+    }
+    const { title, description, completed } = req.body as TodoDTO;
+    task.title = title ?? task.title;
+    task.description = description ?? task.description;
+    task.completed = completed ?? task.completed;
+
+    const updatedTask = await todoRepository.save(task);
+    res.status(200).json({
+      message: "Task updated scuccessfully",
+      task: updatedTask,
+    });
+  } catch (error) {
+    console.error("error updating task", error);
+    res.status(500).json({ message: "internal server error" });
+  }
+};
+
+//Delete a task
+export const deleteTask: RequestHandler = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const taskId = Number(req.params.id);
+    if (!userId) {
+      res.status(401).json({ message: "unauthorized" });
+      return;
+    }
+    const todoRepository = AppDataSource.getRepository(Todo);
+    const task = await todoRepository.findOne({
+      where: { user: { id: userId }, id: taskId },
+    });
+    if (!task) {
+      res.status(404).json({
+        message: "Task not found or you're not authorized to delete this task",
+      });
+      return;
+    }
+    await todoRepository.remove(task);
+    res.status(200).json({ message: "Task deleted successfully" });
+  } catch (error) {
+    console.error("error deleting task:", error);
     res.status(500).json({ message: "internal server error" });
   }
 };

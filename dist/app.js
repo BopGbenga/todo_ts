@@ -12,9 +12,19 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.json());
 const PORT = process.env.PORT;
-app.use("/", (req, res) => {
-    res.send("welcome to Todo");
+app.get("/", (req, res) => {
+    res.status(200).send("welcome!!");
 });
+app.get("*", (req, res) => {
+    res.status(404).send("Route does not exist");
+});
+app.use((err, req, res, next) => {
+    res.status(500).json({ message: err.message });
+});
+const todoRouter_1 = __importDefault(require("./routers/todoRouter"));
+const userRouter_1 = __importDefault(require("./routers/userRouter"));
+app.use("/api/todo", todoRouter_1.default);
+app.use("/api/user", userRouter_1.default);
 ormConfig_1.AppDataSource.initialize()
     .then(() => {
     console.log("Database connected successfully");

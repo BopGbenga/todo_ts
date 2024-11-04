@@ -25,7 +25,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ type: "text" }),
     __metadata("design:type", String)
-], Todo.prototype, "task", void 0);
+], Todo.prototype, "title", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "text" }),
     __metadata("design:type", String)

@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 //Register a new user
-const createUser: RequestHandler = async (
+export const createUser: RequestHandler = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -44,7 +44,7 @@ const createUser: RequestHandler = async (
 };
 
 //Login user
-const loginUser: RequestHandler = async (
+export const loginUser: RequestHandler = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -79,4 +79,4 @@ const loginUser: RequestHandler = async (
   }
 };
 
-export default { createUser, loginUser };
+// export default { createUser, loginUser };

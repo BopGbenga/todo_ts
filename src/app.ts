@@ -13,9 +13,29 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT;
 
-app.use("/", (req: Request, res: Response) => {
-  res.send("welcome to Todo");
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).send("welcome!!");
 });
+app.get("*", (req: express.Request, res: express.Response) => {
+  res.status(404).send("Route does not exist");
+});
+
+app.use(
+  (
+    err: Error,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    res.status(500).json({ message: err.message });
+  }
+);
+
+import todoRoute from "./routers/todoRouter";
+import userRoute from "./routers/userRouter";
+
+app.use("/api/todo", todoRoute);
+app.use("/api/user", userRoute);
 
 AppDataSource.initialize()
   .then(() => {

@@ -12,14 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTask = exports.getAllTask = exports.createTask = void 0;
+exports.deleteTask = exports.updateTodo = exports.getTask = exports.getAllTask = exports.createTask = void 0;
 const todo_1 = __importDefault(require("../entities/todo"));
 const ormConfig_1 = require("../ormConfig");
 //create task
 const createTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const { task, description } = req.body;
+        const { title, description } = req.body;
         const todoRepository = ormConfig_1.AppDataSource.getRepository(todo_1.default);
         const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
         if (!userId) {
@@ -27,7 +27,7 @@ const createTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             return;
         }
         const newTodo = todoRepository.create({
-            task,
+            title,
             description,
             user: { id: userId },
         });
@@ -44,7 +44,7 @@ const createTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.createTask = createTask;
-//Get all todo
+//Get all task
 const getAllTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -66,7 +66,7 @@ const getAllTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.getAllTask = getAllTask;
-//Get a todo
+//Get a task
 const getTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -95,3 +95,62 @@ const getTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getTask = getTask;
+//update a task
+const updateTodo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+        const taskId = Number(req.params.id);
+        const todoRepository = ormConfig_1.AppDataSource.getRepository(todo_1.default);
+        const task = yield todoRepository.findOne({
+            where: { user: { id: userId }, id: taskId },
+        });
+        if (!task) {
+            res.status(404).json({ message: "Task not found or not authorized" });
+            return;
+        }
+        const { title, description, completed } = req.body;
+        task.title = title !== null && title !== void 0 ? title : task.title;
+        task.description = description !== null && description !== void 0 ? description : task.description;
+        task.completed = completed !== null && completed !== void 0 ? completed : task.completed;
+        const updatedTask = yield todoRepository.save(task);
+        res.status(200).json({
+            message: "Task updated scuccessfully",
+            task: updatedTask,
+        });
+    }
+    catch (error) {
+        console.error("error updating task", error);
+        res.status(500).json({ message: "internal server error" });
+    }
+});
+exports.updateTodo = updateTodo;
+//Delete a task
+const deleteTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+        const taskId = Number(req.params.id);
+        if (!userId) {
+            res.status(401).json({ message: "unauthorized" });
+            return;
+        }
+        const todoRepository = ormConfig_1.AppDataSource.getRepository(todo_1.default);
+        const task = yield todoRepository.findOne({
+            where: { user: { id: userId }, id: taskId },
+        });
+        if (!task) {
+            res.status(404).json({
+                message: "Task not found or you're not authorized to delete this task",
+            });
+            return;
+        }
+        yield todoRepository.remove(task);
+        res.status(200).json({ message: "Task deleted successfully" });
+    }
+    catch (error) {
+        console.error("error deleting task:", error);
+        res.status(500).json({ message: "internal server error" });
+    }
+});
+exports.deleteTask = deleteTask;

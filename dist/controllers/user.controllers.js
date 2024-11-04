@@ -35,6 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.loginUser = exports.createUser = void 0;
 const user_1 = __importDefault(require("../entities/user"));
 const ormConfig_1 = require("../ormConfig");
 const Jwt = __importStar(require("jsonwebtoken"));
@@ -73,6 +74,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         });
     }
 });
+exports.createUser = createUser;
 //Login user
 const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -98,4 +100,5 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return;
     }
 });
-exports.default = { createUser, loginUser };
+exports.loginUser = loginUser;
+// export default { createUser, loginUser };
