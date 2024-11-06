@@ -2,6 +2,7 @@ import { Request, Response, RequestHandler } from "express";
 import Todo from "../entities/todo";
 import { TodoDTO } from "../interfaces/todo.dto";
 import { AppDataSource } from "../ormConfig";
+import { getAll, getOne } from "../helpers/cache";
 
 interface AuthRequest extends Request {
   user?: any;
@@ -65,7 +66,8 @@ export const getTask: RequestHandler = async (
 ): Promise<void> => {
   try {
     const userId = req.user?.id;
-    const taskId = Number(req.params.taskId);
+    const taskId = Number(req.params.id);
+
     if (!userId) {
       res.status(401).json({ message: "unauthorized" });
       return;
@@ -75,7 +77,7 @@ export const getTask: RequestHandler = async (
       where: { user: { id: userId }, id: taskId },
     });
     if (!task) {
-      res.status(200).json({ message: "task not found" });
+      res.status(404).json({ message: "Task not found" });
     } else {
       res
         .status(200)

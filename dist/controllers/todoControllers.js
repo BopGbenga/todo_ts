@@ -71,7 +71,7 @@ const getTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-        const taskId = Number(req.params.taskId);
+        const taskId = Number(req.params.id);
         if (!userId) {
             res.status(401).json({ message: "unauthorized" });
             return;
@@ -81,7 +81,7 @@ const getTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             where: { user: { id: userId }, id: taskId },
         });
         if (!task) {
-            res.status(200).json({ message: "task not found" });
+            res.status(404).json({ message: "Task not found" });
         }
         else {
             res

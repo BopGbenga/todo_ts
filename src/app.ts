@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import { Request, Response } from "express";
 import "reflect-metadata";
 import { AppDataSource } from "./ormConfig";
+import todoRoute from "./routers/todoRouter";
+import userRoute from "./routers/userRouter";
 
 dotenv.config();
 
@@ -15,9 +17,6 @@ const PORT = process.env.PORT;
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).send("welcome!!");
-});
-app.get("*", (req: express.Request, res: express.Response) => {
-  res.status(404).send("Route does not exist");
 });
 
 app.use(
@@ -31,11 +30,12 @@ app.use(
   }
 );
 
-import todoRoute from "./routers/todoRouter";
-import userRoute from "./routers/userRouter";
-
 app.use("/api/todo", todoRoute);
 app.use("/api/user", userRoute);
+
+app.get("*", (req: express.Request, res: express.Response) => {
+  res.status(404).send("Route does not exist");
+});
 
 AppDataSource.initialize()
   .then(() => {
