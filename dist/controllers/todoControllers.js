@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTask = exports.updateTodo = exports.getTask = exports.getAllTask = exports.createTask = void 0;
 const todo_1 = __importDefault(require("../entities/todo"));
 const ormConfig_1 = require("../ormConfig");
+const cache_1 = require("../helpers/cache");
 //create task
 const createTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -48,17 +49,13 @@ exports.createTask = createTask;
 const getAllTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-        if (!userId) {
-            res.status(401).json({ message: "unauthorized" });
-            return;
-        }
-        const todoRepository = ormConfig_1.AppDataSource.getRepository(todo_1.default);
-        const task = yield todoRepository.find({ where: { user: { id: userId } } });
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id; // Get the user ID from the authenticated user
+        const allTasks = yield (0, cache_1.getAll)(userId);
         res.status(200).json({
-            message: "Task retrived successfully",
-            tasks: task,
+            message: "successful",
+            data: allTasks,
         });
+        return;
     }
     catch (error) {
         console.error("error retrieving tasks", error);
@@ -70,28 +67,29 @@ exports.getAllTask = getAllTask;
 const getTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
         const taskId = Number(req.params.id);
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id; // Get the user ID from the authenticated user
         if (!userId) {
-            res.status(401).json({ message: "unauthorized" });
+            // If user ID is not available, return unauthorized
+            res.status(401).json({ message: "Unauthorized" });
             return;
         }
-        const todoRepository = ormConfig_1.AppDataSource.getRepository(todo_1.default);
-        const task = yield todoRepository.findOne({
-            where: { user: { id: userId }, id: taskId },
-        });
+        // Await the result of getOne, passing the userId and taskId
+        const task = yield (0, cache_1.getOne)(taskId, userId); // Pass both arguments
         if (!task) {
+            // If no task is found, return a 404
             res.status(404).json({ message: "Task not found" });
+            return;
         }
-        else {
-            res
-                .status(200)
-                .json({ message: "Task retrieved successfully", todo: task });
-        }
+        // Return the task data if found
+        res.status(200).json({
+            message: "Successful",
+            data: task,
+        });
     }
     catch (error) {
-        console.error("error retrieving tasks", error);
-        res.status(500).json({ message: "internal server error" });
+        console.error("Error retrieving task", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 });
 exports.getTask = getTask;

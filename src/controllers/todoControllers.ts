@@ -42,17 +42,13 @@ export const getAllTask: RequestHandler = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      res.status(401).json({ message: "unauthorized" });
-      return;
-    }
-    const todoRepository = AppDataSource.getRepository(Todo);
-    const task = await todoRepository.find({ where: { user: { id: userId } } });
+    const userId = req.user?.id; // Get the user ID from the authenticated user
+    const allTasks = await getAll(userId);
     res.status(200).json({
-      message: "Task retrived successfully",
-      tasks: task,
+      message: "successful",
+      data: allTasks,
     });
+    return;
   } catch (error) {
     console.error("error retrieving tasks", error);
     res.status(500).json({ message: "internal server error" });
@@ -65,27 +61,32 @@ export const getTask: RequestHandler = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
     const taskId = Number(req.params.id);
+    const userId = req.user?.id; // Get the user ID from the authenticated user
 
     if (!userId) {
-      res.status(401).json({ message: "unauthorized" });
+      // If user ID is not available, return unauthorized
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
-    const todoRepository = AppDataSource.getRepository(Todo);
-    const task = await todoRepository.findOne({
-      where: { user: { id: userId }, id: taskId },
-    });
+
+    // Await the result of getOne, passing the userId and taskId
+    const task = await getOne(taskId, userId); // Pass both arguments
+
     if (!task) {
+      // If no task is found, return a 404
       res.status(404).json({ message: "Task not found" });
-    } else {
-      res
-        .status(200)
-        .json({ message: "Task retrieved successfully", todo: task });
+      return;
     }
+
+    // Return the task data if found
+    res.status(200).json({
+      message: "Successful",
+      data: task,
+    });
   } catch (error) {
-    console.error("error retrieving tasks", error);
-    res.status(500).json({ message: "internal server error" });
+    console.error("Error retrieving task", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
