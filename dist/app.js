@@ -20,8 +20,8 @@ app.get("/", (req, res) => {
 app.use((err, req, res, next) => {
     res.status(500).json({ message: err.message });
 });
-app.use("/api/todo", todoRouter_1.default);
-app.use("/api/user", userRouter_1.default);
+app.use("/todo", todoRouter_1.default);
+app.use("/user", userRouter_1.default);
 app.get("*", (req, res) => {
     res.status(404).send("Route does not exist");
 });

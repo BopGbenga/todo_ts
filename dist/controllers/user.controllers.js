@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginUser = exports.createUser = void 0;
+exports.updateUsers = exports.getUsers = exports.loginUser = exports.createUser = void 0;
 const user_1 = __importDefault(require("../entities/user"));
 const ormConfig_1 = require("../ormConfig");
 const Jwt = __importStar(require("jsonwebtoken"));
@@ -101,4 +101,60 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.loginUser = loginUser;
-// export default { createUser, loginUser };
+///get user profile
+const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = Number(req.params.id);
+        const userRepository = ormConfig_1.AppDataSource.getRepository(user_1.default);
+        const user = yield userRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            res.status(404).json({
+                message: "User not found",
+            });
+            return;
+        }
+        res.status(200).json({
+            message: "User retrieved successfully",
+            data: user,
+        });
+    }
+    catch (error) {
+        console.error("Error retrieving users:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+exports.getUsers = getUsers;
+//update user profile
+const updateUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = Number(req.params.id);
+        const userRepository = ormConfig_1.AppDataSource.getRepository(user_1.default);
+        const user = yield userRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            res.status(404).json({
+                message: "User not found",
+            });
+            return;
+        }
+        const { fullname, username, email, password } = req.body;
+        if (fullname)
+            user.fullname = fullname;
+        if (username)
+            user.username = username;
+        if (email)
+            user.email = email;
+        if (password)
+            user.password = password;
+        // Save the updated user information
+        yield userRepository.save(user);
+        res.status(200).json({
+            message: "User updated successfully",
+            data: user,
+        });
+    }
+    catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+exports.updateUsers = updateUsers;

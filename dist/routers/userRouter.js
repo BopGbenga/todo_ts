@@ -8,6 +8,8 @@ const user_controllers_1 = require("../controllers/user.controllers");
 const usersValidations_1 = require("../middlewares/usersValidations");
 const rateLimit_1 = __importDefault(require("../helpers/rateLimit"));
 const router = (0, express_1.Router)();
+router.get("/:id", user_controllers_1.getUsers);
 router.post("/signup", usersValidations_1.validateUser, rateLimit_1.default, user_controllers_1.createUser);
 router.post("/login", usersValidations_1.validateLogin, rateLimit_1.default, user_controllers_1.loginUser);
+router.put("/:id", user_controllers_1.updateUsers);
 exports.default = router;

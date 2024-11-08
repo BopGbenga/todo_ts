@@ -79,4 +79,61 @@ export const loginUser: RequestHandler = async (
   }
 };
 
-// export default { createUser, loginUser };
+///get user profile
+export const getUsers: RequestHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = Number(req.params.id);
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+      return;
+    }
+    res.status(200).json({
+      message: "User retrieved successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error retrieving users:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+//update user profile
+export const updateUsers: RequestHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = Number(req.params.id);
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+      return;
+    }
+    const { fullname, username, email, password } = req.body as CreateUserDTO;
+    if (fullname) user.fullname = fullname;
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (password) user.password = password;
+
+    // Save the updated user information
+    await userRepository.save(user);
+    res.status(200).json({
+      message: "User updated successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
