@@ -14,6 +14,7 @@ export const createTask: RequestHandler = async (
 ): Promise<void> => {
   try {
     const { title, description } = req.body as TodoDTO;
+
     const todoRepository = AppDataSource.getRepository(Todo);
     const userId = req.user?.id as number;
     if (!userId) {
