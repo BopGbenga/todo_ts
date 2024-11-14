@@ -14,8 +14,8 @@ export const createUser: RequestHandler = async (
 ): Promise<void> => {
   try {
     const { fullname, username, email, password } = req.body as CreateUserDTO;
-    //check for existing user
     const userRepository = AppDataSource.getRepository(User);
+    //check for existing user
     const existingUser = await userRepository.findOne({ where: { email } });
     if (existingUser) {
       res.status(400).json({
@@ -70,7 +70,11 @@ export const loginUser: RequestHandler = async (
       { expiresIn: "2d" }
     );
 
-    res.status(200).json({ token });
+    res.status(200).json({
+      message: "login successful",
+      success: true,
+      token,
+    });
     return;
   } catch (error) {
     console.error(error);
