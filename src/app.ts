@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import "reflect-metadata";
 import { AppDataSource } from "./ormConfig";
 import todoRoute from "./routers/todoRouter";
@@ -19,6 +19,11 @@ app.get("/", (req: Request, res: Response) => {
   res.status(200).send("welcome!!");
 });
 
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const err = new Error("Not Found");
+  (err as any).status = 404;
+  next(err);
+});
 app.use(
   (
     err: Error,
