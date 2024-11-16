@@ -71,8 +71,7 @@ export const getTask: RequestHandler = async (
       return;
     }
 
-    // Await the result of getOne, passing the userId and taskId
-    const task = await getOne(taskId, userId); // Pass both arguments
+    const task = await getOne(taskId, userId);
 
     if (!task) {
       // If no task is found, return a 404

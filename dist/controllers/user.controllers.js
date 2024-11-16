@@ -46,8 +46,8 @@ dotenv_1.default.config();
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { fullname, username, email, password } = req.body;
-        //check for existing user
         const userRepository = ormConfig_1.AppDataSource.getRepository(user_1.default);
+        //check for existing user
         const existingUser = yield userRepository.findOne({ where: { email } });
         if (existingUser) {
             res.status(400).json({
@@ -91,7 +91,11 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return;
         }
         const token = Jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "2d" });
-        res.status(200).json({ token });
+        res.status(200).json({
+            message: "login successful",
+            success: true,
+            token,
+        });
         return;
     }
     catch (error) {

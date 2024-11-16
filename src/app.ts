@@ -44,6 +44,7 @@ app.get("*", (req: express.Request, res: express.Response) => {
 
 AppDataSource.initialize()
   .then(() => {
+    console.log("Entities Loaded:", AppDataSource.options.entities);
     console.log("Database connected successfully");
   })
   .catch((error) => console.error("Error connecting to the database", error));

@@ -17,6 +17,11 @@ const PORT = process.env.PORT;
 app.get("/", (req, res) => {
     res.status(200).send("welcome!!");
 });
+app.use((req, res, next) => {
+    const err = new Error("Not Found");
+    err.status = 404;
+    next(err);
+});
 app.use((err, req, res, next) => {
     res.status(500).json({ message: err.message });
 });
@@ -27,6 +32,7 @@ app.get("*", (req, res) => {
 });
 ormConfig_1.AppDataSource.initialize()
     .then(() => {
+    console.log("Entities Loaded:", ormConfig_1.AppDataSource.options.entities);
     console.log("Database connected successfully");
 })
     .catch((error) => console.error("Error connecting to the database", error));
